@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online Student Attendance Management System</title>
+  <style>
+    :root{--navy:#172554;--blue:#2563eb;--pale:#eff6ff;--ink:#172033;--muted:#64748b;--line:#e2e8f0;--green:#15803d;--red:#b91c1c}
+    *{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f7fb;color:var(--ink)}
+    header{background:linear-gradient(120deg,#172554,#2563eb);color:white;padding:24px 5%;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:13px}.logo{width:46px;height:46px;border-radius:13px;background:#ffffff24;display:grid;place-items:center;font-size:24px}
+    h1{font-size:clamp(19px,3vw,27px);margin:0 0 5px}.sub{margin:0;color:#dbeafe;font-size:13px}
+    .container{width:min(1100px,92%);margin:30px auto}.card{background:white;border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:0 8px 24px #0f172a0a}
+    .login-wrap{max-width:440px;margin:42px auto}.eyebrow{color:var(--blue);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:1px}
+    h2{margin:8px 0 18px;font-size:23px}.field{margin:14px 0}.field label{display:block;font-weight:600;font-size:13px;margin-bottom:7px}
+    input,select{width:100%;padding:12px 13px;border:1px solid #cbd5e1;border-radius:9px;font-size:14px;background:white;color:var(--ink)}
+    input:focus,select:focus{outline:2px solid #bfdbfe;border-color:var(--blue)}
+    button{border:0;border-radius:9px;padding:11px 16px;font-weight:700;cursor:pointer;font-size:14px}
+    .primary{background:var(--blue);color:white}.secondary{background:var(--pale);color:#1d4ed8}.danger{background:#fee2e2;color:var(--red)}
+    button:hover{filter:brightness(.96)}.full{width:100%;margin-top:8px}.hint{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:10px;padding:12px;font-size:12px;color:#475569;line-height:1.7;margin-top:18px}
+    .error{color:var(--red);font-size:13px;min-height:18px;margin-top:8px}.topline{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}.stat{background:#f8fafc;border:1px solid var(--line);padding:17px;border-radius:12px}.stat strong{font-size:25px;display:block;margin-top:5px}.stat span{font-size:12px;color:var(--muted)}
+    .toolbar{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:16px 0}.toolbar .field{margin:0;min-width:180px;flex:1}
+    .table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:590px}th,td{text-align:left;padding:13px 12px;border-bottom:1px solid var(--line);font-size:13px}th{background:#f8fafc;color:#475569;font-size:12px}
+    .status{font-weight:700;border-radius:20px;padding:5px 10px;font-size:11px;display:inline-block}.present{background:#dcfce7;color:#166534}.absent{background:#fee2e2;color:#991b1b}.notmarked{background:#f1f5f9;color:#475569}
+    .radio{display:flex;gap:12px;align-items:center}.radio label{display:flex;gap:5px;align-items:center;font-size:12px}.radio input{width:auto}
+    .notice{padding:12px;border-radius:10px;background:#eff6ff;color:#1e40af;font-size:13px;margin:14px 0}.empty{text-align:center;color:var(--muted);padding:25px}
+    footer{text-align:center;color:#94a3b8;font-size:12px;padding:25px}.hidden{display:none!important}
+    @media(max-width:650px){header{padding:18px 4%}.container{margin:18px auto}.card{padding:18px}.stats{grid-template-columns:1fr}.topline{align-items:flex-start}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">✓</div><div><h1 id="collegeTitle">Your College Name</h1><p class="sub">Online Student Attendance Management System</p></div></div>
+  <div id="headerAction"></div>
+</header>
+<main class="container">
+  <section id="loginView" class="login-wrap card">
+    <div class="eyebrow">Welcome</div><h2>Sign in to your account</h2>
+    <div class="field"><label for="role">Login as</label><select id="role"><option value="teacher">Teacher</option><option value="student">Student</option></select></div>
+    <div class="field"><label for="username">Username / Roll Number</label><input id="username" placeholder="Enter username or roll number"></div>
+    <div class="field"><label for="password">Password</label><input id="password" type="password" placeholder="Enter password"></div>
+    <button class="primary full" onclick="login()">Login</button><div id="loginError" class="error"></div>
+    <div class="hint"><b>Demo login details</b><br>Teacher: <b>teacher</b> / <b>teacher123</b><br>Student: <b>23CSE001</b> / <b>student123</b></div>
+  </section>
+
+  <section id="teacherView" class="hidden">
+    <div class="topline"><div><div class="eyebrow">Teacher dashboard</div><h2>Attendance Management</h2><div style="color:#64748b;font-size:13px">View the student list and mark daily attendance.</div></div><button class="secondary" onclick="logout()">Logout</button></div>
+    <div class="stats"><div class="stat"><span>Total Students</span><strong id="totalCount">0</strong></div><div class="stat"><span>Present Today</span><strong id="presentCount">0</strong></div><div class="stat"><span>Absent Today</span><strong id="absentCount">0</strong></div></div>
+    <div class="card">
+      <div class="toolbar"><div class="field"><label for="attendanceDate">Attendance Date</label><input type="date" id="attendanceDate" onchange="renderTeacher()"></div><div class="field"><label for="searchStudent">Search Student</label><input id="searchStudent" placeholder="Search name or roll number" oninput="renderTeacher()"></div><button class="secondary" onclick="markAll('Present')">Mark All Present</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Student Name</th><th>Roll Number</th><th>Attendance Status</th></tr></thead><tbody id="teacherRows"></tbody></table></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:18px"><button class="primary" onclick="saveAttendance()">Save Attendance</button></div>
+      <div id="saveMessage" class="notice hidden"></div>
+    </div>
+  </section>
+
+  <section id="studentView" class="hidden">
+    <div class="topline"><div><div class="eyebrow">Student dashboard</div><h2>My Attendance</h2><div id="studentWelcome" style="color:#64748b;font-size:13px"></div></div><button class="secondary" onclick="logout()">Logout</button></div>
+    <div class="stats"><div class="stat"><span>Classes Marked</span><strong id="classesCount">0</strong></div><div class="stat"><span>Present</span><strong id="studentPresent">0</strong></div><div class="stat"><span>Attendance Percentage</span><strong id="percentage">0%</strong></div></div>
+    <div class="card"><h2 style="font-size:18px">Attendance Records</h2><div class="table-wrap"><table><thead><tr><th>Date</th><th>Status</th></tr></thead><tbody id="studentRows"></tbody></table></div><div id="studentEmpty" class="empty hidden">No attendance records are available yet.</div></div>
+  </section>
+</main>
+<footer>Online Student Attendance Management System · Demo project</footer>
+<script>
+  // Change this value to your actual college name.
+  const COLLEGE_NAME = "Your College Name";
+  document.getElementById("collegeTitle").textContent = COLLEGE_NAME;
+  const students = [
+    {name:"Akshitha Padidela",roll:"23CSE001"},
+    {name:"Sumanth Kumar",roll:"23CSE002"},
+    {name:"Priya Sharma",roll:"23CSE003"},
+    {name:"Rahul Reddy",roll:"23CSE004"},
+    {name:"Sneha Rao",roll:"23CSE005"}
+  ];
+  const today = new Date().toLocaleDateString("en-CA");
+  document.getElementById("attendanceDate").value = today;
+  let currentUser = null;
+  let draft = {};
+
+  function getRecords(){ try{return JSON.parse(localStorage.getItem("attendanceRecords")||"{}")}catch(e){return {}} }
+  function setRecords(data){localStorage.setItem("attendanceRecords",JSON.stringify(data))}
+  function login(){
+    const role=document.getElementById("role").value;
+    const user=document.getElementById("username").value.trim();
+    const pass=document.getElementById("password").value;
+    let valid = role==="teacher" ? user==="teacher"&&pass==="teacher123" : students.some(s=>s.roll===user)&&pass==="student123";
+    if(!valid){document.getElementById("loginError").textContent="Invalid username/roll number or password. Please try again.";return}
+    currentUser={role,user};document.getElementById("loginError").textContent="";
+    document.getElementById("loginView").classList.add("hidden");
+    document.getElementById(role+"View").classList.remove("hidden");
+    document.getElementById("headerAction").textContent=role==="teacher"?"Teacher": "Student";
+    if(role==="teacher")renderTeacher();else renderStudent();
+  }
+  function logout(){currentUser=null;["teacherView","studentView"].forEach(id=>document.getElementById(id).classList.add("hidden"));document.getElementById("loginView").classList.remove("hidden");document.getElementById("headerAction").textContent="";document.getElementById("password").value=""}
+  function statusBadge(status){return status?`<span class="status ${status.toLowerCase()}">${status}</span>`:'<span class="status notmarked">Not marked</span>'}
+  function renderTeacher(){
+    const date=document.getElementById("attendanceDate").value;
+    const records=getRecords();draft={...(records[date]||{})};
+    const q=document.getElementById("searchStudent").value.toLowerCase();
+    const filtered=students.filter(s=>(s.name+" "+s.roll).toLowerCase().includes(q));
+    document.getElementById("teacherRows").innerHTML=filtered.map(s=>{
+      const value=draft[s.roll]||"";
+      return `<tr><td>${s.name}</td><td>${s.roll}</td><td><div class="radio"><label><input type="radio" name="${s.roll}" ${value==="Present"?"checked":""} onchange="setStatus('${s.roll}','Present')"> Present</label><label><input type="radio" name="${s.roll}" ${value==="Absent"?"checked":""} onchange="setStatus('${s.roll}','Absent')"> Absent</label></div></td></tr>`;
+    }).join("")||'<tr><td colspan="3" class="empty">No students found.</td></tr>';
+    document.getElementById("totalCount").textContent=students.length;
+    document.getElementById("presentCount").textContent=students.filter(s=>draft[s.roll]==="Present").length;
+    document.getElementById("absentCount").textContent=students.filter(s=>draft[s.roll]==="Absent").length;
+  }
+  function setStatus(roll,status){draft[roll]=status;document.getElementById("presentCount").textContent=students.filter(s=>draft[s.roll]==="Present").length;document.getElementById("absentCount").textContent=students.filter(s=>draft[s.roll]==="Absent").length}
+  function markAll(status){students.forEach(s=>draft[s.roll]=status);renderTeacher();document.querySelectorAll('#teacherRows input[value="'+status+'"]').forEach(el=>el.checked=true)}
+  function saveAttendance(){
+    const date=document.getElementById("attendanceDate").value;if(!date){alert("Please select a date.");return}
+    const records=getRecords();records[date]={...(records[date]||{}),...draft};setRecords(records);
+    const msg=document.getElementById("saveMessage");msg.textContent="Attendance saved successfully for "+date+".";msg.classList.remove("hidden");renderTeacher();
+  }
+  function renderStudent(){
+    const student=students.find(s=>s.roll===currentUser.user);document.getElementById("studentWelcome").textContent=student.name+" · Roll Number: "+student.roll;
+    const records=getRecords(),items=Object.keys(records).sort().reverse().filter(date=>records[date][student.roll]);
+    const present=items.filter(date=>records[date][student.roll]==="Present").length;
+    const pct=items.length?Math.round(present/items.length*100):0;
+    document.getElementById("classesCount").textContent=items.length;document.getElementById("studentPresent").textContent=present;document.getElementById("percentage").textContent=pct+"%";
+    document.getElementById("studentRows").innerHTML=items.map(date=>`<tr><td>${date}</td><td>${statusBadge(records[date][student.roll])}</td></tr>`).join("");
+    document.getElementById("studentEmpty").classList.toggle("hidden",items.length!==0);
+  }
+</script>
+</body>
+</html>
